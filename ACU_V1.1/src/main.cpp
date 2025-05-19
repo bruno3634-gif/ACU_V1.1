@@ -52,7 +52,7 @@ WDT_T4<WDT1> wdt;
 
 void can_tmr_callback();
 void can_tmr2_callback();
-void pressure_readings_calback();
+void pressure_readings_callback();
 
 void setup() {
   pinMode(R2D_PIN, INPUT);
@@ -89,7 +89,7 @@ void setup() {
   CAN_Timer.begin(can_tmr_callback, 200000); // 200ms
   Non_critical_CAN_Timer.begin(can_tmr2_callback, 1000000); // 1s
   #if PRESSURE_READINGS_ENABLE
-  Pressure_Timer.begin(pressure_readings_calback, 50000); // 50ms 
+  Pressure_Timer.begin(pressure_readings_callback, 50000); // 50ms 
   #endif
   
   WDT_timings_t config;           /* in seconds, 0->128 Warning trigger before timeout */
@@ -157,10 +157,13 @@ void loop() {
 #if PRESSURE_READINGS_ENABLE
   if(pneumatic_pressure_flag){
     pneumatic_pressure_flag = false;
-    pneumatic_pressure1_avg = (pneumatic_pressure1[0] + pneumatic_pressure1[1] + pneumatic_pressure1[2] + pneumatic_pressure1[3])  / 4;
-    pneumatic_pressure2_avg = (pneumatic_pressure2[0] + pneumatic_pressure2[1] + pneumatic_pressure2[2] + pneumatic_pressure2[3])  / 4;
-    Serial.println("Pressure 1: " + String(pneumatic_pressure1_avg));
-    Serial.println("Pressure 2: " + String(pneumatic_pressure2_avg));
+    pneumatic_pressure1_avg = adc_hardware_compensation * ((pneumatic_pressure1[0] + pneumatic_pressure1[1] + pneumatic_pressure1[2] + pneumatic_pressure1[3])  / 4);
+     //Serial.println("Voltage 1: " + String(pneumatic_pressure1_avg));
+    pneumatic_pressure2_avg = adc_hardware_compensation * ((pneumatic_pressure2[0] + pneumatic_pressure2[1] + pneumatic_pressure2[2] + pneumatic_pressure2[3])  / 4);
+    pneumatic_pressure1_avg = (pneumatic_pressure1_avg - 0.5)/0.4;
+    pneumatic_pressure2_avg = (pneumatic_pressure2_avg - 0.5)/0.4;
+    //Serial.println("Pressure 1: " + String(pneumatic_pressure1_avg));
+    //Serial.println("Pressure 2: " + String(pneumatic_pressure2_avg));
   }
 #endif
 
@@ -173,7 +176,7 @@ void can_tmr_callback()
   switch (ACU_STATE)
   {
   case MISSION_SELECT:
-  
+    
   msg.id = ACU_MS;
   msg.len = 1;
   msg.buf[0] = Mission_flag;
@@ -201,18 +204,21 @@ void can_tmr2_callback(){
 }
 
 
-void pressure_readings_calback()
+void pressure_readings_callback()
 {
   #if PRESSURE_READINGS_ENABLE
   float digi_bp1 = analogRead(BP1);
-  pneumatic_pressure1[pneumatic_counter] = (digi_bp1 * 3.3) / 4096;
+  pneumatic_pressure1[pneumatic_counter] = (digi_bp1 * 3.3) / 1024;
   float digi_bp2 = analogRead(BP2);
-  pneumatic_pressure2[pneumatic_counter] = (digi_bp2* 3.3) / 4096;
+  pneumatic_pressure2[pneumatic_counter] = (digi_bp2* 3.3) / 1024;
+ // Serial.println("Pressure 1: " + String(pneumatic_pressure1[pneumatic_counter]));
   pneumatic_counter++;
-  if(pneumatic_counter >=3)
+  if(pneumatic_counter >3)
   {
+    //wdt.reset();
     pneumatic_counter = 0;
   }
   pneumatic_pressure_flag = true;
   #endif
+  
 }

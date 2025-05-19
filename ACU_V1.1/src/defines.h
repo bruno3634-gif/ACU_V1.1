@@ -88,7 +88,12 @@ typedef enum {
 
 
 
-#define PRESSURE_READINGS_ENABLE 0
+
+
+#define PRESSURE_READINGS_ENABLE 1
+
+
+#define adc_hardware_compensation 2.24
 
 
 
