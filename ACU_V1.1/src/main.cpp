@@ -132,16 +132,19 @@ void loop() {
 
   break;
   case MANUAL_MODE:
-
+    wdt_pin_enable = true;
+    digitalWrite(solenoid_1_pin, LOW);  // No EBS activation
+    digitalWrite(solenoid_2_pin, LOW);  // No EBS activation
     break;
   case AUTONOMOUS_MODE:
-      
+      wdt_pin_enable = true;
+      continuous_sequence();
     break;
   case EMERGENCY:
     // Activate the solenoid valves & stop feeding wdt_pin
     wdt_pin_enable = false;
-    digitalWrite(solenoid_1_pin, LOW);
-    digitalWrite(solenoid_2_pin, LOW);
+    digitalWrite(solenoid_1_pin, HIGH);
+    digitalWrite(solenoid_2_pin, HIGH);
   break;
     case RESET:
       
