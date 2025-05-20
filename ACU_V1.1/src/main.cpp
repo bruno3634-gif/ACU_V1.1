@@ -7,6 +7,9 @@
 
 
 
+
+
+
 STATE ACU_STATE = MISSION_SELECT;
 
 IntervalTimer CAN_Timer;
@@ -129,7 +132,8 @@ void loop() {
     
     break;
   case INITIAL_SEQUENCE:
-
+    initial_sequence();
+    break;
   break;
   case MANUAL_MODE:
     wdt_pin_enable = true;

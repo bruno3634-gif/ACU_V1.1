@@ -126,7 +126,7 @@ void continuous_sequence(){
     else{
         extern unsigned long last_msg_time[4]; // 0 -RES, 1 - MAXON, 2. JETSON, 3 - VCU
         for(int i = 0; i < 4; i++){
-            if(millis() - last_msg_time[i] >= 2000){
+            if(millis() - last_msg_time[i] >= COMUNICATION_TIMEOUT){
                 ACU_STATE = EMERGENCY;
                 //  engage brakes
                 // error 
