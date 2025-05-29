@@ -22,9 +22,10 @@ void initial_sequence(){
 
     bool conditions_met = true; // change when pressures available
 
-
+    #if PRESSURE_READINGS_ENABLE
     extern float pneumatic_pressure1_avg;
     extern float pneumatic_pressure2_avg; 
+    #endif
 
     extern STATE ACU_STATE; 
     extern bool wdt_pin_enable;
@@ -56,9 +57,15 @@ void initial_sequence(){
             }
             break;
         case BRAKE_PRESSURE_CHECK:
+
+        #if PRESSURE_READINGS_ENABLE
             if(pneumatic_pressure1_avg < 6 || pneumatic_pressure1_avg > 10 || pneumatic_pressure2_avg < 6 || pneumatic_pressure2_avg > 10){
                 ACU_STATE = EMERGENCY;
             }
+            
+        #else
+        init_sequence_state = IGNITION;
+        #endif
         break;
         case IGNITION:
             
